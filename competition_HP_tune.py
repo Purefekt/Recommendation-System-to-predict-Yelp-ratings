@@ -1,27 +1,3 @@
-"""
-Method Description: I used a model-based recommendation system. I have used the XGBoost model to predict the ratings.
-I extracted the following features for each business:
-From the business.json file I extracted -> latitude, longitude, stars, review count, is open, rate of true attributes which was the total number of true attributes/total number of false attributes, and the number of categories.
-From the checkIn.json file I extracted -> the number of different check-ins done for the business.
-From the photo.json file I extracted -> the number of photos for each business.
-From the tip.json file I extracted -> the number of tips for each business
-I extracted the following features for each user:
-From the tip.json file I extracted -> the number of tips left by each user.
-From the user.json file I extracted -> review count, yelping since which is the Linux timestamp value of when they created their account, number of friends, number of useful, number of funny, number of cool, number of fans, number of times this user was elite, average stars, compliment hot, compliment more, compliment profile, compliment cute, compliment cute, compliment list, compliment note, compliment plain, compliment cool, compliment funny, compliment writer, compliment photos.
-Then I combined the data to create a (user_id, business_id) [feature1, feature2, ...]
-I used this to train the model and to predict.
-I used different hyperparameters and using hyperparameter tuning, was able to get the lowest RMSE value.
-
-Error Distribution:
-
-RMSE:
-
-Execution Time:
-
-
-
-"""
-
 from pyspark.context import SparkContext
 import json
 from datetime import datetime
@@ -267,3 +243,4 @@ fhand.close()
 
 end_time = time.time()
 print(f'Duration: {end_time - start_time}')
+
