@@ -51,7 +51,6 @@ TIP_FILE_PATH = FOLDER_PATH + 'tip.json'
 USER_FILE_PATH = FOLDER_PATH + 'user.json'
 
 
-
 # Read in the training dataset. Remove the header and convert a csv string into a list of 3 elements
 # [user_id, business_id, rating(float type)]
 train_RDD = sc.textFile(TRAIN_FILE_PATH)
