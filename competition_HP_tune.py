@@ -17,7 +17,7 @@ sc.setLogLevel('ERROR')
 
 FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
 TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
+OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output_hp.csv'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
@@ -200,9 +200,17 @@ for k in train_all_joined_MAP:
     y_train.append(labels_MAP[k])
 
 #----------- Training Phase -----------
-# model = XGBRegressor(n_estimators=1000, learning_rate=0.1,verbocity=3, max_depth=5, subsample=0.85, colsample_bytree = 0.9)
-model = XGBRegressor(max_depth=5, min_child_weight=1, subsample=0.6, colsample_bytree=0.6, gamma=0, reg_alpha=1, reg_lambda=0, learning_rate=0.05, n_estimators=800)
-model.fit(X=x_train, y=y_train, eval_metric = 'rmse')
+model = XGBRegressor(learning_rate=0.05,
+                     max_depth=4,
+                     min_child_weight=1,
+                     subsample=0.6,
+                     colsample_bytree=0.6,
+                     gamma=0,
+                     reg_alpha=1,
+                     reg_lambda=0,
+                     n_estimators=800)
+
+model.fit(X=x_train, y=y_train)
 #--------------------------------------
 
 #----------- Testing Phase -----------
@@ -243,4 +251,3 @@ fhand.close()
 
 end_time = time.time()
 print(f'Duration: {end_time - start_time}')
-

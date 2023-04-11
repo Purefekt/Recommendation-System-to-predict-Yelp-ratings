@@ -224,9 +224,17 @@ for k in train_all_joined_MAP:
     y_train.append(labels_MAP[k])
 
 #----------- Training Phase -----------
-# model = XGBRegressor(n_estimators=1000, learning_rate=0.1,verbocity=3, max_depth=5, subsample=0.85, colsample_bytree = 0.9)
-model = XGBRegressor(max_depth=5, min_child_weight=1, subsample=0.6, colsample_bytree=0.6, gamma=0, reg_alpha=1, reg_lambda=0, learning_rate=0.05, n_estimators=800)
-model.fit(X=x_train, y=y_train, eval_metric = 'rmse')
+model = XGBRegressor(learning_rate=0.05,
+                     max_depth=5,
+                     min_child_weight=1,
+                     subsample=0.6,
+                     colsample_bytree=0.6,
+                     gamma=0,
+                     reg_alpha=1,
+                     reg_lambda=0,
+                     n_estimators=800)
+
+model.fit(X=x_train, y=y_train)
 #--------------------------------------
 
 #----------- Testing Phase -----------
@@ -258,6 +266,8 @@ for k in test_all_joined_MAP:
 
 #----------- Predictions -----------
 predictions = model.predict(data=x_test)
+
+predictions = [min(max(pred, 1.0), 5.0) for pred in predictions]
 
 fhand = open(OUTPUT_FILE_PATH, 'w')
 fhand.writelines('user_id, business_id, prediction\n')
