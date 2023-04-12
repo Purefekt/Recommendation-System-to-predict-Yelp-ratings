@@ -4,10 +4,10 @@ from datetime import datetime
 import pytz
 from xgboost import XGBRegressor
 import time
-import sys
-from collections import defaultdict
 import ast
 from datetime import datetime
+import pickle
+import numpy as np
 
 start_time = time.time()
 
@@ -15,8 +15,7 @@ sc = SparkContext()
 sc.setLogLevel('ERROR')
 
 FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
+SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/model.sav'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
@@ -101,8 +100,6 @@ def get_num_elites(elite):
         return 0
     elite = elite.split(',')
     return len(elite)
-
-#---------------------------------------------
 
 # using the feature to index hashmap, create a vector of features for each business
 # all categories are 1 hot encoded. 0 if doesnt exist, 1 if it does
@@ -202,6 +199,8 @@ user_RDD = sc.textFile(USER_FILE_PATH).map(lambda x: json.loads(x)).map(lambda x
                                                                                    int(x['compliment_photos'])
                                                                                ]))
 
+#---------------------------------------------
+
 def combine_lists(data_row):
     # fix nonetype error
     if data_row[1][1] == None:
@@ -257,10 +256,15 @@ x_train = []
 y_train = []
 
 for k in train_all_joined_MAP:
+
+    for i in range(len(train_all_joined_MAP[k])):
+        if  train_all_joined_MAP[k][i] is None:
+            train_all_joined_MAP[k][i] = np.nan
+
     x_train.append(train_all_joined_MAP[k])
     y_train.append(labels_MAP[k])
 
-#----------- Training Phase -----------
+#----------- Train the model -----------
 model = XGBRegressor(learning_rate=0.05,
                      max_depth=5,
                      min_child_weight=1,
@@ -273,45 +277,9 @@ model = XGBRegressor(learning_rate=0.05,
                      missing=0)
 
 model.fit(X=x_train, y=y_train)
-#--------------------------------------
 
-#----------- Testing Phase -----------
-# Read in the testing dataset. Remove the header and convert a csv string into a list of 2 elements
-# [user_id, business_id]
-test_RDD = sc.textFile(TESTING_FILE_PATH)
-headers_test = test_RDD.first()
-test_RDD = test_RDD.filter(lambda x:x!=headers_test).map(lambda x:x.split(',')).map(lambda x:(x[0], x[1]))
-
-# join the test_RDD and business_features_RDD
-# we need to have the business_id as the key for this
-test_RDD_tmp = test_RDD.map(lambda x: (x[1], x[0]))
-test_join_business_features_RDD = test_RDD_tmp.leftOuterJoin(business_features_RDD).map(lambda x: combine_lists(x))
-
-# now join this with the user_features_RDD. We need to have the user_id as key for this
-test_join_business_features_RDD_tmp = test_join_business_features_RDD.map(lambda x: switch_keys(x))
-test_join_business_features_user_features_RDD = test_join_business_features_RDD_tmp.leftOuterJoin(user_features_RDD)
-
-# format the data as (user_id, business_id) [feature1, feature2, ...]
-test_all_joined_MAP = test_join_business_features_user_features_RDD.map(lambda x: join_all(x)).collectAsMap()
-
-# create the x testing list
-x_test = []
-test_labels = []
-for k in test_all_joined_MAP:
-    x_test.append(test_all_joined_MAP[k])
-    test_labels.append(k)
-#--------------------------------------
-
-#----------- Predictions -----------
-predictions = model.predict(data=x_test)
-
-predictions = [min(max(pred, 1.0), 5.0) for pred in predictions]
-
-fhand = open(OUTPUT_FILE_PATH, 'w')
-fhand.writelines('user_id, business_id, prediction\n')
-for i in range(len(test_labels)):
-    fhand.writelines(test_labels[i][0] + ',' + test_labels[i][1] + ',' + str(predictions[i]) + '\n')
-fhand.close()
+# save the model
+pickle.dump(model, open(SAVE_MODEL_PATH, 'wb'))
 
 end_time = time.time()
 print(f'Duration: {end_time - start_time}')
