@@ -8,6 +8,7 @@ import ast
 from datetime import datetime
 import pickle
 import numpy as np
+import decimal
 
 start_time = time.time()
 
@@ -104,8 +105,17 @@ def get_num_elites(elite):
 # using the feature to index hashmap, create a vector of features for each business
 # all categories are 1 hot encoded. 0 if doesnt exist, 1 if it does
 # for each day in hours, convert the time slot into number of hours
-# Rest are boolean values or categorical values, input as is since XGBoost can handle categorical data
-# 
+# For boolean values, set it to 1 for True and 0 for False
+# For categorical data, convert it to a deterministic hash value of 32 bit integer and use that
+
+def decimal_hash32(s):
+    ctx = decimal.getcontext()
+    ctx.prec = 32
+    h = decimal.Decimal(0)
+    for c in s:
+        h = (h * decimal.Decimal(131)) + decimal.Decimal(ord(c))
+    return int(h % (2**32))
+
 def get_feat_vector(data_row):
     
     bus_id = data_row['business_id']
@@ -129,6 +139,15 @@ def get_feat_vector(data_row):
                 feature_name = k.strip()
                 if feature_name not in {'hours', 'attributes'}:
                     feature_idx = ALL_FEATURES[feature_name]
+                    
+                    
+                    
+                    if v == True or v == 'True':
+                        v = 1
+                    elif v == False or v == 'False':
+                        v = 0
+                    elif type(v) == str:
+                        v = decimal_hash32(v)
                     feature_vector[feature_idx] = v
 
         else:
@@ -143,6 +162,13 @@ def get_feat_vector(data_row):
                         feature_name = k + '$' + k2 + '$' + k3
                         feature_name = feature_name.strip()
                         feature_idx = ALL_FEATURES[feature_name]
+                        
+                        if v3 == True or v3 == 'True':
+                            v3 = 1
+                        elif v3 == False or v3 == 'False':
+                            v3 = 0
+                        elif type(v3) == str:
+                            v3 = decimal_hash32(v3)
                         feature_vector[feature_idx] = v3
 
                 else:
@@ -155,9 +181,18 @@ def get_feat_vector(data_row):
                     if k == 'hours':
                         feature_vector[feature_idx] = convert_timings_to_hours(v2)
                     else:
+                        
+                        if v2 == True or v2 == 'True':
+                            v2 = 1
+                        elif v2 == False or v2 == 'False':
+                            v2 = 0
+                        elif type(v2) == str:
+                            v2 = decimal_hash32(v2)
+                        
                         feature_vector[feature_idx] = v2
         
     return (bus_id, feature_vector)
+#---------------------------------------------
 
 # For each business, create its feature vector. (business_id, [feat1, feat2, .. feat1399])
 business_RDD = sc.textFile(BUSINESS_FILE_PATH).map(lambda x: json.loads(x)).map(lambda x: get_feat_vector(x))
@@ -198,8 +233,6 @@ user_RDD = sc.textFile(USER_FILE_PATH).map(lambda x: json.loads(x)).map(lambda x
                                                                                    int(x['compliment_writer']),
                                                                                    int(x['compliment_photos'])
                                                                                ]))
-
-#---------------------------------------------
 
 def combine_lists(data_row):
     # fix nonetype error
@@ -256,11 +289,11 @@ x_train = []
 y_train = []
 
 for k in train_all_joined_MAP:
-
+    
     for i in range(len(train_all_joined_MAP[k])):
-        if  train_all_joined_MAP[k][i] is None:
+        if train_all_joined_MAP[k][i] is None:
             train_all_joined_MAP[k][i] = np.nan
-
+    
     x_train.append(train_all_joined_MAP[k])
     y_train.append(labels_MAP[k])
 
@@ -282,4 +315,4 @@ model.fit(X=x_train, y=y_train)
 pickle.dump(model, open(SAVE_MODEL_PATH, 'wb'))
 
 end_time = time.time()
-print(f'Duration: {end_time - start_time}')
+print(f'Duration: {end_time-start_time}')
