@@ -15,13 +15,13 @@ start_time = time.time()
 sc = SparkContext()
 sc.setLogLevel('ERROR')
 
-# FOLDER_PATH = sys.argv[1]
-# TESTING_FILE_PATH = sys.argv[2]
-# OUTPUT_FILE_PATH = sys.argv[3]
+FOLDER_PATH = sys.argv[1]
+TESTING_FILE_PATH = sys.argv[2]
+OUTPUT_FILE_PATH = sys.argv[3]
 
-FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output69.csv'
+# FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
+# TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
+# OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output69.csv'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
