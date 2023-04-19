@@ -16,7 +16,7 @@ sc = SparkContext()
 sc.setLogLevel('ERROR')
 
 FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/use_all_features/model_2.sav'
+SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/use_all_features/model.sav'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'

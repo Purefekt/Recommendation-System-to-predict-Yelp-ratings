@@ -1,3 +1,32 @@
+"""
+Method Description: I used a model-based recommendation system. I have used the XGBoost model to predict the ratings.
+I extracted the following features for each business:
+From the business.json file I extracted -> All the features. For the single value features which which have boolean values, i set 1 for True and 0 for False. For features which were categorical, i converted each category into a 32bit deterministic hash value. I used one hot encoding to convert each category into a feature.
+From the checkIn.json file I extracted -> the number of different check-ins done for the business.
+From the photo.json file I extracted -> the number of photos for each business.
+From the tip.json file I extracted -> the number of tips for each business
+I extracted the following features for each user:
+From the tip.json file I extracted -> the number of tips left by each user.
+From the user.json file I extracted -> review count, yelping since which is the Linux timestamp value of when they created their account, number of friends, number of useful, number of funny, number of cool, number of fans, number of times this user was elite, average stars, compliment hot, compliment more, compliment profile, compliment cute, compliment cute, compliment list, compliment note, compliment plain, compliment cool, compliment funny, compliment writer, compliment photos.
+Then I combined the data to create a (user_id, business_id) [feature1, feature2, ...]
+This way, i created feature vectors of size 1423 which was 1423 different features.
+I trained the model locally and saved the model.sav file
+I used different hyperparameters and using hyperparameter tuning, was able to get the lowest RMSE value.
+
+Error Distribution:
+>=0 and <1: 102253
+>=1 and <2: 32870
+>=2 and <3: 6137
+>=3 and <4: 783
+>=4 1
+
+RMSE:
+0.9784022196357953
+
+Execution Time:
+104s
+"""
+
 from pyspark.context import SparkContext
 import json
 from datetime import datetime
@@ -15,15 +44,14 @@ start_time = time.time()
 sc = SparkContext()
 sc.setLogLevel('ERROR')
 
-# FOLDER_PATH = sys.argv[1]
-# TESTING_FILE_PATH = sys.argv[2]
-# OUTPUT_FILE_PATH = sys.argv[3]
+FOLDER_PATH = sys.argv[1]
+TESTING_FILE_PATH = sys.argv[2]
+OUTPUT_FILE_PATH = sys.argv[3]
 
-FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
+# FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
+# TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
+# OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
 
-TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
 CHECKIN_FILE_PATH = FOLDER_PATH + 'checkin.json'
 PHOTO_FILE_PATH = FOLDER_PATH + 'photo.json'
