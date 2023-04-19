@@ -15,13 +15,13 @@ start_time = time.time()
 sc = SparkContext()
 sc.setLogLevel('ERROR')
 
-FOLDER_PATH = sys.argv[1]
-TESTING_FILE_PATH = sys.argv[2]
-OUTPUT_FILE_PATH = sys.argv[3]
+# FOLDER_PATH = sys.argv[1]
+# TESTING_FILE_PATH = sys.argv[2]
+# OUTPUT_FILE_PATH = sys.argv[3]
 
-# FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-# TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-# OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output69.csv'
+FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
+TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
+OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
@@ -271,7 +271,6 @@ def join_all(data_row):
     
     return ((usr_id, bus_id), bus_features + usr_features)
 
-
 #----------- Testing Phase -----------
 # Read in the testing dataset. Remove the header and convert a csv string into a list of 2 elements
 # [user_id, business_id]
@@ -291,29 +290,38 @@ test_join_business_features_user_features_RDD = test_join_business_features_RDD_
 # format the data as (user_id, business_id) [feature1, feature2, ...]
 test_all_joined_RDD = test_join_business_features_user_features_RDD.map(lambda x: join_all(x))
 
-#----------- Predictions -----------
-def predict_and_save(data_row):
-    test_tabel = data_row[0]
-    feature_vector = data_row[1]
+def predictions_on_partition(part):
     
-    # change all None to np.nan to be compatible with xgboost
-    for i in range(len(feature_vector)):
-        if feature_vector[i] is None:
-            feature_vector[i] = np.nan
+    test_partition_MAP = dict(part)
     
-    # get predicition, round it and keep it between 1.0 and 5.0
-    prediction = min(max(LOADED_MODEL.predict(feature_vector)[0], 1.0), 5.0)
+    # create the x testing list
+    x_test_part = []
+    test_labels_part = []
+    for k in test_partition_MAP:
+        x_test_part.append(test_partition_MAP[k])  
+        test_labels_part.append(k)
     
-    return (test_tabel, prediction)
+    for xt in x_test_part:
+        for i in range(len(xt)):
+            if xt[i] is None:
+                xt[i] = np.nan
+    
+    predictions = LOADED_MODEL.predict(data=x_test_part)
+    predictions = [min(max(pred, 1.0), 5.0) for pred in predictions]
+    
+    output = []
+    for i in range(len(test_labels_part)):
+        output.append((test_labels_part[i][0], test_labels_part[i][1], predictions[i]))
+    
+    return output
 
-# test in parallel
-predictions = test_all_joined_RDD.map(lambda x: predict_and_save(x)).collect()
+predictions = test_all_joined_RDD.mapPartitions(lambda x: predictions_on_partition(x)).collect()
 
 fhand = open(OUTPUT_FILE_PATH, 'w')
 fhand.writelines('user_id, business_id, prediction\n')
 
-for label, pred_rating in predictions:
-    fhand.writelines(label[0] + ',' + label[1] + ',' + str(pred_rating) + '\n')
+for pred in predictions:
+    fhand.writelines(pred[0] + ',' + pred[1] + ',' + str(pred[2]) + '\n')
 fhand.close()
 
 end_time = time.time()

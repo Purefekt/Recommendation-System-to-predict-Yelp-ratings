@@ -14,7 +14,7 @@ I used different hyperparameters and using hyperparameter tuning, was able to ge
 
 Error Distribution:
 
-RMSE:
+RMSE: 0.9784022196357953
 
 Execution Time:
 

@@ -16,7 +16,7 @@ sc = SparkContext()
 sc.setLogLevel('ERROR')
 
 FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/model.sav'
+SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/use_all_features/model_2.sav'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
@@ -194,7 +194,7 @@ def get_feat_vector(data_row):
     return (bus_id, feature_vector)
 #---------------------------------------------
 
-# For each business, create its feature vector. (business_id, [feat1, feat2, .. feat1399])
+# For each business, create its feature vector. (business_id, [feat0, feat2, .. feat1398])
 business_RDD = sc.textFile(BUSINESS_FILE_PATH).map(lambda x: json.loads(x)).map(lambda x: get_feat_vector(x))
 
 # Get the total number of check ins for a business
@@ -298,6 +298,17 @@ for k in train_all_joined_MAP:
     y_train.append(labels_MAP[k])
 
 #----------- Train the model -----------
+# model = XGBRegressor(learning_rate=0.05,
+#                      max_depth=5,
+#                      min_child_weight=1,
+#                      subsample=0.6,
+#                      colsample_bytree=0.6,
+#                      gamma=0,
+#                      reg_alpha=1,
+#                      reg_lambda=0,
+#                      n_estimators=800,
+#                      missing=0)
+
 model = XGBRegressor(learning_rate=0.05,
                      max_depth=5,
                      min_child_weight=1,
@@ -306,8 +317,7 @@ model = XGBRegressor(learning_rate=0.05,
                      gamma=0,
                      reg_alpha=1,
                      reg_lambda=0,
-                     n_estimators=800,
-                     missing=0)
+                     n_estimators=800)
 
 model.fit(X=x_train, y=y_train)
 
