@@ -297,18 +297,6 @@ for k in train_all_joined_MAP:
     x_train.append(train_all_joined_MAP[k])
     y_train.append(labels_MAP[k])
 
-#----------- Train the model -----------
-# model = XGBRegressor(learning_rate=0.05,
-#                      max_depth=5,
-#                      min_child_weight=1,
-#                      subsample=0.6,
-#                      colsample_bytree=0.6,
-#                      gamma=0,
-#                      reg_alpha=1,
-#                      reg_lambda=0,
-#                      n_estimators=800,
-#                      missing=0)
-
 model = XGBRegressor(learning_rate=0.05,
                      max_depth=5,
                      min_child_weight=1,
