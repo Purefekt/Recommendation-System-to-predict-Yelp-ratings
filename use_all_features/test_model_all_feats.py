@@ -58,7 +58,7 @@ PHOTO_FILE_PATH = FOLDER_PATH + 'photo.json'
 TIP_FILE_PATH = FOLDER_PATH + 'tip.json'
 USER_FILE_PATH = FOLDER_PATH + 'user.json'
 
-MODEL_FILE_PATH = 'model.sav'
+MODEL_FILE_PATH = 'model_hp.sav'
 LOADED_MODEL = pickle.load(open(MODEL_FILE_PATH, 'rb'))
 
 # All the unique features for a business mined from business.json
