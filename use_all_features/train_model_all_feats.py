@@ -315,7 +315,7 @@ model = XGBRegressor(learning_rate=0.05,
                      gamma=0,
                      reg_alpha=1,
                      reg_lambda=0,
-                     n_estimators=1500)
+                     n_estimators=2500)
 
 model.fit(X=x_train, y=y_train)
 
