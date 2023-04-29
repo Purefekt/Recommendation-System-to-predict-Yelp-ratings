@@ -21,7 +21,7 @@ Error Distribution:
 >=4 1
 
 RMSE:
-0.9776031524561102
+
 
 Execution Time:
 114s
@@ -44,13 +44,13 @@ start_time = time.time()
 sc = SparkContext()
 sc.setLogLevel('ERROR')
 
-# FOLDER_PATH = sys.argv[1]
-# TESTING_FILE_PATH = sys.argv[2]
-# OUTPUT_FILE_PATH = sys.argv[3]
+FOLDER_PATH = sys.argv[1]
+TESTING_FILE_PATH = sys.argv[2]
+OUTPUT_FILE_PATH = sys.argv[3]
 
-FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
-OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
+# FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
+# TESTING_FILE_PATH = '/Users/veersingh/Desktop/competition_files/yelp_val.csv'
+# OUTPUT_FILE_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/output.csv'
 
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
 CHECKIN_FILE_PATH = FOLDER_PATH + 'checkin.json'
@@ -58,7 +58,7 @@ PHOTO_FILE_PATH = FOLDER_PATH + 'photo.json'
 TIP_FILE_PATH = FOLDER_PATH + 'tip.json'
 USER_FILE_PATH = FOLDER_PATH + 'user.json'
 
-MODEL_FILE_PATH = 'model_hp.sav'
+MODEL_FILE_PATH = 'model.sav'
 LOADED_MODEL = pickle.load(open(MODEL_FILE_PATH, 'rb'))
 
 # All the unique features for a business mined from business.json
