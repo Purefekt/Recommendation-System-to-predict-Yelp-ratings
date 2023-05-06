@@ -16,7 +16,7 @@ sc = SparkContext()
 sc.setLogLevel('ERROR')
 
 FOLDER_PATH = '/Users/veersingh/Desktop/competition_files/'
-SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/use_all_features/model.sav'
+SAVE_MODEL_PATH = '/Users/veersingh/Desktop/Recommendation-System-to-predict-Yelp-ratings/use_all_features/model_weird.sav'
 
 TRAIN_FILE_PATH = FOLDER_PATH + 'yelp_train.csv'
 BUSINESS_FILE_PATH = FOLDER_PATH + 'business.json'
@@ -297,16 +297,16 @@ for k in train_all_joined_MAP:
     x_train.append(train_all_joined_MAP[k])
     y_train.append(labels_MAP[k])
 
-model = XGBRegressor(learning_rate=0.05,
-                     max_depth=5,
-                     min_child_weight=1,
-                     subsample=0.6,
-                     colsample_bytree=0.6,
-                     gamma=0,
-                     reg_alpha=1,
-                     reg_lambda=0,
-                     n_estimators=2500,
-                     missing=np.nan)
+model = XGBRegressor(reg_lambda= 9.92724463758443,
+                     reg_alpha=0.2765119705933928,
+                     colsample_bytree=0.5,
+                     subsample=0.8,
+                     learning_rate=0.02,
+                     max_depth=17,
+                     random_state=2020,
+                     min_child_weight=101,
+                     n_estimators=300)
+
 
 model.fit(X=x_train, y=y_train)
 
